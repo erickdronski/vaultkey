@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Key, ArrowRight, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase-browser'
+import SocialAuth from '@/components/SocialAuth'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -55,6 +56,8 @@ export default function LoginPage() {
               <span style={{ color: '#ff6b7a', fontSize: 14 }}>{error}</span>
             </div>
           )}
+
+          <SocialAuth mode="login" />
 
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>

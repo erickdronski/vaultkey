@@ -3,6 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Key, ArrowRight, Eye, EyeOff, AlertCircle, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase-browser'
+import SocialAuth from '@/components/SocialAuth'
 
 const PERKS = ['AES-256-GCM encrypted vault', 'Per-agent permission system', 'Full audit trail', '14-day free trial included']
 
@@ -82,6 +83,8 @@ export default function SignupPage() {
               <span style={{ color: '#ff6b7a', fontSize: 14 }}>{error}</span>
             </div>
           )}
+
+          <SocialAuth mode="signup" />
 
           <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
