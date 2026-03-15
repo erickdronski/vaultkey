@@ -171,6 +171,36 @@ body::before {
 .pill-purple { background: rgba(91, 106, 255, 0.1); color: #818cf8; border: 1px solid rgba(91,106,255,0.2); }
 .pill-yellow { background: rgba(255, 184, 48, 0.1); color: #ffb830; border: 1px solid rgba(255,184,48,0.2); }
 
+/* ─── Responsive breakpoints ─────────────────────────────────── */
+@media (max-width: 1024px) {
+  .hero-grid { grid-template-columns: 1fr !important; }
+  .hero-terminal { position: static !important; transform: none !important; width: 100% !important; margin-top: 48px; }
+  .hide-tablet { display: none !important; }
+  .show-tablet { display: flex !important; }
+}
+
+@media (max-width: 768px) {
+  .nav-links { display: none !important; }
+  .two-col { grid-template-columns: 1fr !important; }
+  .three-col { grid-template-columns: 1fr !important; }
+  .four-col { grid-template-columns: 1fr 1fr !important; }
+  .pricing-grid { grid-template-columns: 1fr !important; }
+  .hide-mobile { display: none !important; }
+  .hero-title { font-size: clamp(34px, 8vw, 60px) !important; }
+  .section-pad { padding-left: 20px !important; padding-right: 20px !important; }
+  .comparison-table { display: none !important; }
+  .mobile-stack { flex-direction: column !important; }
+  .mobile-full { width: 100% !important; }
+  /* Reduce vertical padding on mobile */
+  section { padding-top: 80px !important; padding-bottom: 80px !important; }
+  /* Dashboard sidebar hidden on mobile — future */
+}
+
+@media (max-width: 480px) {
+  .four-col { grid-template-columns: 1fr !important; }
+  .stats-row { grid-template-columns: 1fr 1fr !important; }
+}
+
 /* Scroll animations */
 .fade-up {
   opacity: 0;

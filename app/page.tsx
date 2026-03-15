@@ -131,6 +131,60 @@ export default function LandingPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', position: 'relative', zIndex: 0 }}>
+      <style>{`
+        /* ── Global responsive overrides ── */
+        .resp-two-col {
+          display: grid !important;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+        }
+        .resp-three-col {
+          display: grid !important;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
+        }
+        .resp-four-col {
+          display: grid !important;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 16px;
+        }
+        .resp-pricing {
+          display: grid !important;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 16px;
+        }
+        .resp-two-col-60 {
+          display: grid !important;
+          grid-template-columns: 1fr 1fr;
+          gap: 60px;
+          align-items: center;
+        }
+        .section-inner {
+          max-width: 1100px;
+          margin: 0 auto;
+          padding: 0 24px;
+        }
+        @media (max-width: 1024px) {
+          .resp-three-col { grid-template-columns: 1fr 1fr !important; }
+          .resp-two-col-60 { grid-template-columns: 1fr !important; gap: 40px !important; }
+        }
+        @media (max-width: 768px) {
+          .resp-two-col { grid-template-columns: 1fr !important; }
+          .resp-three-col { grid-template-columns: 1fr !important; }
+          .resp-four-col { grid-template-columns: 1fr 1fr !important; }
+          .resp-pricing { grid-template-columns: 1fr !important; }
+          .resp-two-col-60 { grid-template-columns: 1fr !important; gap: 36px !important; }
+          .section-pad { padding-top: 80px !important; padding-bottom: 80px !important; }
+          .section-inner { padding-left: 20px !important; padding-right: 20px !important; }
+          .nav-desktop-links { display: none !important; }
+          .comparison-table-wrap { display: none !important; }
+          .stat-grid { grid-template-columns: 1fr 1fr !important; }
+        }
+        @media (max-width: 480px) {
+          .resp-four-col { grid-template-columns: 1fr !important; }
+          .stat-grid { grid-template-columns: 1fr 1fr !important; }
+        }
+      `}</style>
 
       {/* ── Nav ───────────────────────────────────────────────────── */}
       <nav style={{
@@ -153,7 +207,7 @@ export default function LandingPage() {
             </div>
             <span style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', color: '#f0f4ff' }}>VaultKey</span>
           </div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div className="nav-desktop-links" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             {[['#how', 'How it works'], ['#pricing', 'Pricing'], ['#security', 'Security']].map(([href, label]) => (
               <a key={href} href={href} style={{ color: '#8892aa', textDecoration: 'none', fontSize: 14, padding: '6px 12px', borderRadius: 7, transition: 'color 0.2s' }}
                 onMouseEnter={e => (e.currentTarget.style.color = '#f0f4ff')}
@@ -164,99 +218,169 @@ export default function LandingPage() {
               Start free <ArrowRight size={14} />
             </Link>
           </div>
+          {/* Mobile nav — just the CTA */}
+          <div style={{ display: 'none' }} className="nav-mobile-cta">
+            <Link href="/signup" className="btn-primary" style={{ padding: '8px 16px', fontSize: 13 }}>
+              Start free
+            </Link>
+          </div>
+          <style>{`
+            @media (max-width: 768px) {
+              .nav-desktop-links { display: none !important; }
+              .nav-mobile-cta { display: flex !important; }
+            }
+          `}</style>
         </div>
       </nav>
 
       {/* ── Hero ──────────────────────────────────────────────────── */}
-      <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
-        {/* Orbs */}
+      <section style={{ position: 'relative', overflow: 'hidden', paddingTop: 80 }}>
+        {/* Background orbs */}
         <div className="orb" style={{ width: 700, height: 700, background: 'radial-gradient(circle, rgba(91,106,255,0.12) 0%, transparent 70%)', top: -200, left: -200 }} />
         <div className="orb" style={{ width: 500, height: 500, background: 'radial-gradient(circle, rgba(124,58,237,0.1) 0%, transparent 70%)', top: 100, right: -100 }} />
         <div className="orb" style={{ width: 400, height: 400, background: 'radial-gradient(circle, rgba(0,229,176,0.06) 0%, transparent 70%)', bottom: 0, left: '40%' }} />
-
-        {/* Grid */}
         <div className="grid-bg" style={{ position: 'absolute', inset: 0, opacity: 0.6 }} />
 
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '120px 24px 80px', position: 'relative', zIndex: 2, width: '100%' }}>
-          <div style={{ maxWidth: 700, marginBottom: 60 }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(0,229,176,0.08)', border: '1px solid rgba(0,229,176,0.2)', borderRadius: 100, padding: '6px 16px', marginBottom: 28, fontSize: 12, color: '#00e5b0', fontWeight: 600, letterSpacing: '0.05em' }}>
-              <span style={{ width: 6, height: 6, background: '#00e5b0', borderRadius: '50%', animation: 'pulse-glow 2s infinite' }} />
-              NOW IN EARLY ACCESS
+        {/* Two-column grid — stacks on tablet/mobile */}
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '80px 32px 100px', position: 'relative', zIndex: 2 }}>
+          <style>{`
+            .hero-layout {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 60px;
+              align-items: center;
+            }
+            @media (max-width: 1024px) {
+              .hero-layout { grid-template-columns: 1fr; gap: 48px; }
+              .hero-terminal-col { order: 2; }
+              .hero-copy-col { order: 1; }
+            }
+            @media (max-width: 640px) {
+              .hero-layout { gap: 36px; padding-top: 60px; }
+              .hero-scroll-hint { display: none !important; }
+            }
+            .hero-h1 {
+              font-size: clamp(38px, 5.5vw, 72px);
+              font-weight: 900;
+              line-height: 1.06;
+              letter-spacing: -0.04em;
+              margin-bottom: 24px;
+              color: #f0f4ff;
+            }
+            .hero-sub {
+              font-size: clamp(16px, 2vw, 20px);
+              color: #8892aa;
+              line-height: 1.7;
+              margin-bottom: 36px;
+              max-width: 520px;
+            }
+            .hero-btns {
+              display: flex;
+              gap: 12px;
+              flex-wrap: wrap;
+              align-items: center;
+            }
+            .hero-trust {
+              display: flex;
+              gap: 20px;
+              margin-top: 28px;
+              flex-wrap: wrap;
+            }
+            .hero-mini-cards {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 10px;
+              margin-top: 12px;
+            }
+            @media (max-width: 480px) {
+              .hero-btns { flex-direction: column; }
+              .hero-btns a, .hero-btns button { width: 100%; justify-content: center; }
+            }
+          `}</style>
+
+          <div className="hero-layout">
+            {/* Left: copy */}
+            <div className="hero-copy-col">
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(0,229,176,0.08)', border: '1px solid rgba(0,229,176,0.2)', borderRadius: 100, padding: '6px 16px', marginBottom: 28, fontSize: 12, color: '#00e5b0', fontWeight: 600, letterSpacing: '0.05em' }}>
+                <span style={{ width: 6, height: 6, background: '#00e5b0', borderRadius: '50%' }} />
+                NOW IN EARLY ACCESS
+              </div>
+
+              <h1 className="hero-h1">
+                Your agents need<br />credentials.{' '}
+                <span className="text-gradient">Don't hardcode them.</span>
+              </h1>
+
+              <p className="hero-sub">
+                VaultKey is the secrets vault built for autonomous AI agents. Per-agent permissions. Zero-knowledge encryption. Full audit trail.
+              </p>
+
+              <div className="hero-btns">
+                <Link href="/signup" className="btn-primary" style={{ fontSize: 15, padding: '14px 28px' }}>
+                  Get started free <ArrowRight size={16} />
+                </Link>
+                <a href="#how" className="btn-ghost" style={{ fontSize: 15, padding: '14px 28px' }}>
+                  See how it works
+                </a>
+              </div>
+
+              <div className="hero-trust">
+                {['No credit card required', '14-day free trial', 'Cancel anytime'].map(t => (
+                  <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#4a5570', fontSize: 13 }}>
+                    <Check size={12} color="#00e5b0" /> {t}
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <h1 style={{ fontSize: 'clamp(44px, 7vw, 80px)', fontWeight: 900, lineHeight: 1.05, letterSpacing: '-0.04em', marginBottom: 24, color: '#f0f4ff' }}>
-              Your agents need<br />credentials.{' '}
-              <span className="text-gradient">Don't<br />hardcode them.</span>
-            </h1>
-
-            <p style={{ fontSize: 20, color: '#8892aa', lineHeight: 1.7, marginBottom: 40, maxWidth: 540 }}>
-              VaultKey is the secrets vault built for autonomous AI agents. Per-agent permissions. Zero-knowledge encryption. Full audit trail.
-            </p>
-
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-              <Link href="/signup" className="btn-primary" style={{ fontSize: 16, padding: '15px 30px' }}>
-                Get started free <ArrowRight size={16} />
-              </Link>
-              <a href="#how" className="btn-ghost" style={{ fontSize: 16, padding: '15px 30px' }}>
-                See how it works
-              </a>
-            </div>
-
-            <div style={{ display: 'flex', gap: 24, marginTop: 32, flexWrap: 'wrap' }}>
-              {['No credit card required', '14-day free trial', 'Cancel anytime'].map(t => (
-                <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#4a5570', fontSize: 13 }}>
-                  <Check size={13} color="#00e5b0" /> {t}
+            {/* Right: terminal */}
+            <div className="hero-terminal-col float">
+              <div className="code-block pulse-glow">
+                <div className="code-block-header">
+                  <div className="code-dot" style={{ background: '#ff4757' }} />
+                  <div className="code-dot" style={{ background: '#ffb830' }} />
+                  <div className="code-dot" style={{ background: '#00e5b0' }} />
+                  <span style={{ color: '#4a5570', fontSize: 12, marginLeft: 8 }}>agent_init.py</span>
                 </div>
-              ))}
+                <div style={{ padding: '20px 22px', overflowX: 'auto' }}>
+                  {displayed.map((line, i) => {
+                    let color = '#8892aa'
+                    if (line.startsWith('#')) color = '#4a5570'
+                    else if (line.startsWith('import') || line.startsWith('from')) color = '#5b6aff'
+                    else if (line.includes('vault.get(')) color = '#00e5b0'
+                    else if (line.includes('=')) color = '#f0f4ff'
+                    return (
+                      <div key={i} style={{ color, fontFamily: 'monospace', fontSize: 13, lineHeight: 1.9, whiteSpace: 'pre' }}>
+                        {line || ' '}
+                        {i === displayed.length - 1 && <span className="cursor" style={{ borderRight: '2px solid #5b6aff', marginLeft: 1 }}> </span>}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className="hero-mini-cards">
+                {[
+                  { label: 'Encrypted at rest', icon: '🔐', sub: 'AES-256-GCM' },
+                  { label: 'Access logged', icon: '📋', sub: 'Every request' },
+                  { label: 'Instant revoke', icon: '⚡', sub: '1-click block' },
+                  { label: 'MCP ready', icon: '🤖', sub: 'Claude & GPT' },
+                ].map(item => (
+                  <div key={item.label} style={{ background: 'rgba(12,17,32,0.9)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 14px', backdropFilter: 'blur(12px)' }}>
+                    <div style={{ fontSize: 18, marginBottom: 4 }}>{item.icon}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#f0f4ff' }}>{item.label}</div>
+                    <div style={{ fontSize: 11, color: '#4a5570' }}>{item.sub}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Terminal card */}
-          <div className="float" style={{ position: 'absolute', right: 24, top: '50%', transform: 'translateY(-50%)', width: 480, maxWidth: 'calc(100vw - 48px)' }}>
-            <div className="code-block pulse-glow" style={{ width: '100%' }}>
-              <div className="code-block-header">
-                <div className="code-dot" style={{ background: '#ff4757' }} />
-                <div className="code-dot" style={{ background: '#ffb830' }} />
-                <div className="code-dot" style={{ background: '#00e5b0' }} />
-                <span style={{ color: '#4a5570', fontSize: 12, marginLeft: 8 }}>agent_init.py</span>
-              </div>
-              <div style={{ padding: '20px 22px' }}>
-                {displayed.map((line, i) => {
-                  let color = '#8892aa'
-                  if (line.startsWith('#')) color = '#4a5570'
-                  else if (line.startsWith('import') || line.startsWith('from')) color = '#5b6aff'
-                  else if (line.includes('vault.get(')) color = '#00e5b0'
-                  else if (line.includes('=')) color = '#f0f4ff'
-                  return (
-                    <div key={i} style={{ color, fontFamily: 'monospace', fontSize: 13, lineHeight: 1.9, whiteSpace: 'pre' }}>
-                      {line || ' '}
-                      {i === displayed.length - 1 && <span className="cursor" style={{ borderRight: '2px solid #5b6aff', marginLeft: 1 }}> </span>}
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Mini stat cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
-              {[
-                { label: 'Encrypted at rest', icon: '🔐', sub: 'AES-256-GCM' },
-                { label: 'Access logged', icon: '📋', sub: 'Every request' },
-              ].map(item => (
-                <div key={item.label} style={{ background: 'rgba(12,17,32,0.9)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 14px', backdropFilter: 'blur(12px)' }}>
-                  <div style={{ fontSize: 18, marginBottom: 4 }}>{item.icon}</div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#f0f4ff' }}>{item.label}</div>
-                  <div style={{ fontSize: 11, color: '#4a5570' }}>{item.sub}</div>
-                </div>
-              ))}
-            </div>
+          {/* Scroll hint */}
+          <div className="hero-scroll-hint" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, color: '#2a3347', marginTop: 60, animation: 'float 2s ease-in-out infinite' }}>
+            <span style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase' }}>scroll</span>
+            <ChevronDown size={16} />
           </div>
-        </div>
-
-        {/* Scroll hint */}
-        <div style={{ position: 'absolute', bottom: 40, left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, color: '#2a3347', animation: 'float 2s ease-in-out infinite' }}>
-          <span style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase' }}>scroll</span>
-          <ChevronDown size={16} />
         </div>
       </section>
 
@@ -277,7 +401,7 @@ export default function LandingPage() {
           </div>
 
           {/* Before/After */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+          <div className="two-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
             {/* Before */}
             <div className="fade-up fade-up-delay-1">
               <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -355,7 +479,7 @@ export default function LandingPage() {
             </h2>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+          <div className="resp-three-col">
             {[
               {
                 step: '01', icon: '🔑', title: 'Create your vault',
@@ -389,7 +513,7 @@ export default function LandingPage() {
 
       {/* ── Live demo section ─────────────────────────────────────── */}
       <section style={{ padding: '120px 24px' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center' }}>
+        <div className="resp-two-col-60" style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div className="fade-up">
             <div style={{ fontSize: 12, color: '#5b6aff', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 16, textTransform: 'uppercase' }}>Real-time audit</div>
             <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 800, letterSpacing: '-0.03em', color: '#f0f4ff', marginBottom: 16, lineHeight: 1.2 }}>
@@ -425,7 +549,7 @@ export default function LandingPage() {
       <section id="security" style={{ padding: '120px 24px', position: 'relative' }}>
         <div className="orb" style={{ width: 500, height: 500, background: 'radial-gradient(circle, rgba(0,229,176,0.06) 0%, transparent 70%)', right: -100, top: '50%', transform: 'translateY(-50%)' }} />
         <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 2 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center' }}>
+          <div className="resp-two-col-60">
             <div className="fade-up">
               <div style={{ fontSize: 12, color: '#00e5b0', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 16, textTransform: 'uppercase' }}>Security first</div>
               <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 800, letterSpacing: '-0.03em', color: '#f0f4ff', marginBottom: 16, lineHeight: 1.2 }}>
@@ -457,7 +581,7 @@ export default function LandingPage() {
             </div>
 
             <div className="fade-up fade-up-delay-2">
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {[
                   { label: 'Secrets protected', value: '∞', sub: 'Team plan' },
                   { label: 'Avg retrieval time', value: '~11ms', sub: 'Global edge' },
@@ -472,7 +596,7 @@ export default function LandingPage() {
                 ))}
               </div>
 
-              <div className="card" style={{ marginTop: 12, padding: 20 }}>
+              <div className="card comparison-table-wrap" style={{ marginTop: 12, padding: 20 }}>
                 <div style={{ fontSize: 12, color: '#4a5570', fontWeight: 600, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Compared to alternatives</div>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
@@ -522,7 +646,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+          <div className="resp-pricing">
             {[
               {
                 name: 'Personal', monthly: 9.99, annual: 7.99,
@@ -598,7 +722,7 @@ export default function LandingPage() {
       {/* ── Final CTA ─────────────────────────────────────────────── */}
       <section style={{ padding: '120px 24px' }}>
         <div style={{ maxWidth: 700, margin: '0 auto', textAlign: 'center' }}>
-          <div className="fade-up card-glow" style={{ padding: '70px 48px' }}>
+          <div className="fade-up card-glow" style={{ padding: 'clamp(36px, 6vw, 70px) clamp(24px, 5vw, 48px)' }}>
             <div style={{ width: 64, height: 64, background: 'linear-gradient(135deg, #5b6aff, #7c3aed)', borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 28px', boxShadow: '0 8px 32px rgba(91,106,255,0.4)' }}>
               <Lock size={26} color="white" />
             </div>
