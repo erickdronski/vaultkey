@@ -1,28 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
-import { encryptSecret } from '@/lib/crypto'
-import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
+import { createClient, createAdminClient } from '@/lib/supabase-server'
+import { encryptSecret, decryptSecret } from '@/lib/crypto'
 
-async function getVaultId(req: NextRequest): Promise<string | null> {
-  const cookieStore = await cookies()
-  const authToken = cookieStore.get('sb-access-token')?.value
-  if (!authToken) return null
-  const { data: { user } } = await supabaseAdmin.auth.getUser(authToken)
-  if (!user) return null
-  const { data: vault } = await supabaseAdmin.from('vaults').select('id').eq('user_id', user.id).single()
-  return vault?.id || null
+async function getAuthenticatedVault() {
+  const supabase = await createClient()
+  const { data: { user }, error } = await supabase.auth.getUser()
+  if (error || !user) return { user: null, vault: null, admin: null }
+  const admin = await createAdminClient()
+  const { data: vault } = await admin.from('vaults').select('id').eq('user_id', user.id).single()
+  return { user, vault, admin }
 }
 
-export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get('authorization')
-  if (!authHeader) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
-  const token = authHeader.replace('Bearer ', '')
-  const { data: { user } } = await supabaseAdmin.auth.getUser(token)
-  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
-  const { data: vault } = await supabaseAdmin.from('vaults').select('id').eq('user_id', user.id).single()
-  if (!vault) return NextResponse.json({ secrets: [] })
-  const { data: secrets } = await supabaseAdmin
+export async function GET() {
+  const { vault, admin } = await getAuthenticatedVault()
+  if (!vault) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  const { data: secrets } = await admin!
     .from('secrets')
     .select('id, name, description, created_at, updated_at')
     .eq('vault_id', vault.id)
@@ -31,42 +23,40 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const authHeader = req.headers.get('authorization')
-  if (!authHeader) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
-  const token = authHeader.replace('Bearer ', '')
-  const { data: { user } } = await supabaseAdmin.auth.getUser(token)
-  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
-  const { data: vault } = await supabaseAdmin.from('vaults').select('id').eq('user_id', user.id).single()
-  if (!vault) return NextResponse.json({ error: 'no_vault' }, { status: 400 })
-
+  const { vault, admin } = await getAuthenticatedVault()
+  if (!vault) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   const { name, value, description } = await req.json()
-  if (!name || !value) return NextResponse.json({ error: 'missing_fields' }, { status: 400 })
-
+  if (!name?.trim() || !value?.trim()) return NextResponse.json({ error: 'Name and value are required' }, { status: 400 })
+  const cleanName = name.toLowerCase().trim().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')
   const { encrypted, iv } = encryptSecret(value)
-  const { data, error } = await supabaseAdmin.from('secrets').insert({
-    vault_id: vault.id,
-    name: name.toLowerCase().replace(/\s+/g, '_'),
-    encrypted_value: encrypted,
-    iv,
-    description,
+  const { data, error } = await admin!.from('secrets').insert({
+    vault_id: vault.id, name: cleanName, encrypted_value: encrypted, iv, description: description?.trim() || null,
   }).select('id, name, description, created_at').single()
-
   if (error) {
-    if (error.code === '23505') return NextResponse.json({ error: 'duplicate', message: 'A secret with that name already exists' }, { status: 409 })
+    if (error.code === '23505') return NextResponse.json({ error: 'A secret with that name already exists' }, { status: 409 })
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
   return NextResponse.json({ secret: data })
 }
 
+export async function PATCH(req: NextRequest) {
+  const { vault, admin } = await getAuthenticatedVault()
+  if (!vault) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  const { id, value, description } = await req.json()
+  const updates: Record<string, string> = { description, updated_at: new Date().toISOString() }
+  if (value) {
+    const { encrypted, iv } = encryptSecret(value)
+    updates.encrypted_value = encrypted
+    updates.iv = iv
+  }
+  const { data } = await admin!.from('secrets').update(updates).eq('id', id).eq('vault_id', vault.id).select('id, name, description, updated_at').single()
+  return NextResponse.json({ secret: data })
+}
+
 export async function DELETE(req: NextRequest) {
-  const authHeader = req.headers.get('authorization')
-  if (!authHeader) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
-  const token = authHeader.replace('Bearer ', '')
-  const { data: { user } } = await supabaseAdmin.auth.getUser(token)
-  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
-  const { data: vault } = await supabaseAdmin.from('vaults').select('id').eq('user_id', user.id).single()
-  if (!vault) return NextResponse.json({ error: 'no_vault' }, { status: 400 })
+  const { vault, admin } = await getAuthenticatedVault()
+  if (!vault) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   const { id } = await req.json()
-  await supabaseAdmin.from('secrets').delete().eq('id', id).eq('vault_id', vault.id)
+  await admin!.from('secrets').delete().eq('id', id).eq('vault_id', vault.id)
   return NextResponse.json({ success: true })
 }
