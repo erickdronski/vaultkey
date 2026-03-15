@@ -646,31 +646,43 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="resp-pricing">
+          <div className="resp-pricing" style={{ maxWidth: 780, margin: '0 auto' }}>
             {[
               {
                 name: 'Personal', monthly: 9.99, annual: 7.99,
                 desc: 'Solo builders & indie hackers',
-                features: ['5 agents', '50 secrets', 'REST API', 'Audit log (30 days)', 'Email support'],
-                cta: 'Start free trial', popular: false, color: '#8892aa',
+                badge: null,
+                features: [
+                  '5 agents',
+                  '25 secrets',
+                  '500 API requests / day',
+                  '30-day audit log',
+                  'REST API access',
+                  'Email support',
+                ],
+                cta: 'Start free trial', popular: false,
               },
               {
-                name: 'Team', monthly: 29, annual: 23,
-                desc: 'Teams with serious agent infra',
-                features: ['20 agents', 'Unlimited secrets', 'REST API + MCP server', 'Audit log (1 year)', 'Webhook alerts', 'Priority support'],
-                cta: 'Start free trial', popular: true, color: '#5b6aff',
-              },
-              {
-                name: 'Enterprise', monthly: 99, annual: 79,
-                desc: 'Companies at scale',
-                features: ['Unlimited agents', 'Unlimited secrets', 'SSO / SAML', 'IP allowlisting', 'Custom retention', 'SLA + dedicated Slack'],
-                cta: 'Book a call', popular: false, color: '#8892aa',
+                name: 'Team', monthly: 29.99, annual: 23.99,
+                desc: 'Power users & production agents',
+                badge: 'BEST VALUE',
+                features: [
+                  '25 agents',
+                  'Unlimited secrets',
+                  'Unlimited API requests',
+                  '1-year audit log',
+                  'REST API + MCP server',
+                  'Webhook alerts',
+                  'IP allowlisting per agent',
+                  'Priority support',
+                ],
+                cta: 'Start free trial', popular: true,
               },
             ].map((plan, i) => (
               <div key={plan.name} className={`fade-up fade-up-delay-${i + 1}`} style={{ position: 'relative' }}>
-                {plan.popular && (
+                {plan.badge && (
                   <div style={{ position: 'absolute', top: -13, left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg, #5b6aff, #7c3aed)', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 14px', borderRadius: 100, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
-                    MOST POPULAR
+                    {plan.badge}
                   </div>
                 )}
                 <div style={{
@@ -752,11 +764,12 @@ export default function LandingPage() {
             </div>
           </div>
           <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-            {['Privacy', 'Terms', 'Docs', 'Status', 'GitHub'].map(item => (
-              <a key={item} href="#" style={{ color: '#4a5570', textDecoration: 'none', fontSize: 13, transition: 'color 0.2s' }}
+            {[['Privacy', '#'], ['Terms', '#'], ['Docs', '/docs'], ['Status', '#'], ['GitHub', 'https://github.com/erickdronski/vaultkey']].map(([item, href]) => (
+              <a key={item} href={href} style={{ color: '#4a5570', textDecoration: 'none', fontSize: 13, transition: 'color 0.2s' }}
                 onMouseEnter={e => (e.currentTarget.style.color = '#8892aa')}
                 onMouseLeave={e => (e.currentTarget.style.color = '#4a5570')}>{item}</a>
             ))}
+
           </div>
           <div style={{ fontSize: 12, color: '#2a3347' }}>© 2026 VaultKey</div>
         </div>

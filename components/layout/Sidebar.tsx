@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Key, Shield, Bot, Activity, Settings, LogOut } from 'lucide-react'
+import { Key, Shield, Bot, Activity, Settings, LogOut, CreditCard, BookOpen } from 'lucide-react'
 import { createClient } from '@/lib/supabase-browser'
 
 const nav = [
@@ -9,7 +9,12 @@ const nav = [
   { href: '/dashboard/secrets', label: 'Secrets', icon: Key },
   { href: '/dashboard/agents', label: 'Agents', icon: Bot },
   { href: '/dashboard/logs', label: 'Logs', icon: Activity },
+  { href: '/dashboard/billing', label: 'Billing', icon: CreditCard },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
+]
+
+const bottomNav = [
+  { href: '/docs', label: 'Docs', icon: BookOpen },
 ]
 
 export default function Sidebar() {
@@ -45,8 +50,13 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div style={{ padding: '16px 12px', borderTop: '1px solid var(--border)' }}>
-        <button onClick={signOut} className="sidebar-link" style={{ background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left', color: '#4a5570' }}>
+      <div style={{ padding: '12px 12px 0', borderTop: '1px solid var(--border)' }}>
+        {bottomNav.map(({ href, label, icon: Icon }) => (
+          <Link key={href} href={href} className="sidebar-link" style={{ color: '#4a5570' }}>
+            <Icon size={15} /> {label}
+          </Link>
+        ))}
+        <button onClick={signOut} className="sidebar-link" style={{ background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left', color: '#4a5570', marginTop: 2, marginBottom: 8 }}>
           <LogOut size={15} /> Sign out
         </button>
       </div>

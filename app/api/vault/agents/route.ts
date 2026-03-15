@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { createClient, createAdminClient } from '@/lib/supabase-server'
 import { generateAgentKey } from '@/lib/agent-auth'
+import { checkAgentLimit } from '@/lib/usage'
 
 async function getAuthenticatedVault() {
   const supabase = await createClient()
@@ -24,10 +25,17 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const { vault, admin } = await getAuthenticatedVault()
-  if (!vault) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  const { user, vault, admin } = await getAuthenticatedVault()
+  if (!user || !vault) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   const { name, allowed_secrets, expires_at } = await req.json()
   if (!name?.trim()) return NextResponse.json({ error: 'Agent name is required' }, { status: 400 })
+
+  // Enforce plan limit
+  const limit = await checkAgentLimit(user.id, vault.id)
+  if (!limit.allowed) {
+    return NextResponse.json({ error: 'limit_reached', message: `Your ${limit.planId} plan allows ${limit.limit} active agents. Upgrade to Team for 25 agents.`, planId: limit.planId }, { status: 403 })
+  }
+
   const agentKey = generateAgentKey()
   const keyHash = await bcrypt.hash(agentKey, 12)
   const { data, error } = await admin!.from('agents').insert({

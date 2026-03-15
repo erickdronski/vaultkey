@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createAdminClient } from '@/lib/supabase-server'
-import { encryptSecret, decryptSecret } from '@/lib/crypto'
+import { encryptSecret } from '@/lib/crypto'
+import { checkSecretLimit } from '@/lib/usage'
 
 async function getAuthenticatedVault() {
   const supabase = await createClient()
@@ -23,10 +24,17 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const { vault, admin } = await getAuthenticatedVault()
-  if (!vault) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  const { user, vault, admin } = await getAuthenticatedVault()
+  if (!user || !vault) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   const { name, value, description } = await req.json()
   if (!name?.trim() || !value?.trim()) return NextResponse.json({ error: 'Name and value are required' }, { status: 400 })
+
+  // Enforce plan limit
+  const limit = await checkSecretLimit(user.id, vault.id)
+  if (!limit.allowed) {
+    return NextResponse.json({ error: 'limit_reached', message: `Your ${limit.planId} plan allows ${limit.limit} secrets. Upgrade to Team for unlimited.`, planId: limit.planId }, { status: 403 })
+  }
+
   const cleanName = name.toLowerCase().trim().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')
   const { encrypted, iv } = encryptSecret(value)
   const { data, error } = await admin!.from('secrets').insert({

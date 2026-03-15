@@ -25,8 +25,8 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  // Redirect unauthenticated users away from dashboard
-  if (!user && pathname.startsWith('/dashboard')) {
+  // Redirect unauthenticated users away from dashboard/onboarding
+  if (!user && (pathname.startsWith('/dashboard') || pathname === '/onboarding')) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
@@ -39,5 +39,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/login', '/signup'],
+  matcher: ['/dashboard/:path*', '/onboarding', '/login', '/signup'],
 }
